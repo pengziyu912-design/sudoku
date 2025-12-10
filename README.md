@@ -3,7 +3,7 @@
 
 A comprehensive Python-based Sudoku system capable of **generating** unique puzzles, **recognizing** Sudoku grids from images using Computer Vision (OpenCV), and **solving** them automatically with visual overlays.
 
-This project was developed as part of a Software Engineering / Software Carpentry coursework, demonstrating modular design, unit testing, and continuous integration (CI).
+This project demonstrated modular design, unit testing, and continuous integration (CI).
 
 ## ✨ Features
 
