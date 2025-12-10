@@ -4,7 +4,7 @@
 import logging
 import random
 from typing import List, Tuple, Optional
-
+import os
 from PIL import Image, ImageDraw, ImageFont
 
 ListGrid = List[List[int]]
@@ -93,10 +93,75 @@ def generate_full_grid() -> ListGrid:
     return grid
 
 
+def count_solutions(grid: ListGrid, limit: int = 2) -> int:
+    """
+    Counts the number of solutions for the grid.
+    Stops if 'limit' solutions are found (usually limit=2).
+    Used to determine if the solution is unique.
+    """
+    empty = find_empty(grid)
+    if not empty:
+        return 1  # Found one solution
+
+    row, col = empty
+    count = 0
+
+    # Iterate through numbers 1-9 (order doesnt matter for counting)
+    for num in range(1, 10):
+        if is_valid(grid, row, col, num):
+            grid[row][col] = num
+            count += count_solutions(grid, limit)
+            grid[row][col] = 0  # Backtrack
+
+            # If we found more than 1 solution, stop early.
+            if count >= limit:
+                return count
+
+    return count
+
+
 def generate(mask_rate: float = 0.5) -> ListGrid:
-    """Generate a Sudoku puzzle by masking a full solution."""
+    """
+    Generate a Sudoku puzzle with a GUARANTEED unique solution.
+    Uses iterative removal instead of random masking.
+    """
+    # 1. Generate a full solution first
     full = generate_full_grid()
-    puzzle = mask(full, rate=mask_rate)
+
+    # Create a copy to work on
+    puzzle = [row[:] for row in full]
+
+    # Get coordinates for all cells (0,0) to (8,8)
+    cells = [(r, c) for r in range(9) for c in range(9)]
+    random.shuffle(cells)  # Randomize the removal order
+
+    # Calculate max number of cells to remove based on rate
+    max_removals = int(81 * mask_rate)
+    removed_count = 0
+
+    for r, c in cells:
+        # Stop if we have removed enough cells
+        if removed_count >= max_removals:
+            break
+
+        # 2. Save the original value
+        original_val = puzzle[r][c]
+
+        # 3. Attempt to remove the value (set to 0)
+        puzzle[r][c] = 0
+
+        # 4. Check if the puzzle still has exactly ONE unique solution
+        # (Must copy the grid because count_solutions modifies it)
+        grid_copy = [row[:] for row in puzzle]
+        solutions = count_solutions(grid_copy, limit=2)
+
+        if solutions != 1:
+            # Failure: If solutions != 1 (either 0 or >1), this number cannot be removed.
+            puzzle[r][c] = original_val  # Put the number back (Backtrack)
+        else:
+            # Success: Still unique, keep the removal.
+            removed_count += 1
+
     return puzzle
 
 
@@ -192,8 +257,6 @@ def draw_sudoku(grid: ListGrid, filename: str = "sudoku_puzzle.png") -> None:
     print(f"Saved Sudoku image to {filename}")
 
 
-# ===== Difficulty estimation by number of clues =====
-
 def count_clues(grid: ListGrid) -> int:
     """Count how many non-zero cells (given clues) the puzzle has."""
     return sum(1 for row in grid for v in row if v != 0)
@@ -214,29 +277,45 @@ def estimate_difficulty_by_clues(grid: ListGrid) -> Tuple[str, int]:
     return level, clues
 
 
+# Main Execution Block
 if __name__ == "__main__":
-    # initial difficulty
-    mask_rate = 0.6  # higher -> more empty cells -> harder
+    # mask_rate determines the target removal percentage
+    mask_rate = 0.6 
 
     while True:
         print("\n==============================")
-        # generate puzzle with current mask_rate
+        # generate puzzle with UNIQUE solution check
         p = generate(mask_rate=mask_rate)
-        print("=== Generated Sudoku puzzle ===")
-        print_grid(p)
-        print("Valid (no conflicts):", check_partial(p))
+        
+        # [Optional] Double check uniqueness for display
+        check_grid = [row[:] for row in p]
+        sol_count = count_solutions(check_grid)
+        print(f"Uniqueness Check: {'PASSED' if sol_count == 1 else 'FAILED'} ({sol_count} solutions)")
 
         level, clues = estimate_difficulty_by_clues(p)
         print(f"Number of clues: {clues}")
         print(f"Estimated difficulty: {level}")
         print(f"Current mask_rate: {mask_rate:.2f}")
+        base_name = f"sudoku_puzzle_{level.lower()}_{clues}"
+        counter = 1
+        
+        while True:
+            # Check if file exists: sudoku_puzzle_medium_33_1.png
+            img_name = f"{base_name}_{counter}.png"
+            
+            if os.path.exists(img_name):
+                # If exists, try next number (e.g., _2.png)
+                counter += 1
+            else:
+                # Found a free number! Use it.
+                break
+        # --------------------------------------------------------
 
-        img_name = f"sudoku_puzzle_{level.lower()}_{clues}.png"
         draw_sudoku(p, img_name)
 
         # difficulty control
         cmd = input(
-            "Adjust difficulty? (h = harder, e = easier, q = quit, other = regenerate same): "
+            "Adjust difficulty? (h = harder, e = easier, q = quit, other = regenerate): "
         ).strip().lower()
 
         if cmd == "h":
@@ -249,5 +328,4 @@ if __name__ == "__main__":
             print("Bye.")
             break
         else:
-            print("Regenerating with same difficulty...")
-
+            print("Regenerating...")
