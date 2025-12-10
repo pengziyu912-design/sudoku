@@ -71,7 +71,7 @@ Enter: Regenerate with current settings.
 
 Output: Files will be saved as sudoku_puzzle_medium_33_1.png, _2.png, etc.
 
-2. Solving a Puzzle
+### 2. Solving a Puzzle
 Run the solver to recognize and solve an existing image.
 
 ```Bash
