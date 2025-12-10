@@ -87,7 +87,7 @@ The system recognizes the digits.
 Solves the puzzle mathematically.
 
 Generates a solution image (e.g., sudoku_puzzle_..._solved.png) with answers in red.
-
+```
 ## 🧪 Running Tests
 This project uses unittest to ensure reliability. You can run the tests locally:
 
