@@ -92,9 +92,9 @@ Generates a solution image (e.g., sudoku_puzzle_..._solved.png) with answers in 
 ## 🧪 Running Tests
 This project uses unittest to ensure reliability. You can run the tests locally:
 
-Bash
-
+```Bash
 python test_project.py
+```
 Expected Output: Ran seven tests in 0.xxx s ... OK
 
 ## 🛠️ Technologies Used
