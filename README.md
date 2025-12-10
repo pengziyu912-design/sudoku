@@ -58,6 +58,7 @@ A comprehensive Python-based Sudoku system capable of **generating** unique puzz
 Run the generator to create a new Sudoku image.
 ```bash
 python sudoku_generator.py
+```
 Controls:
 
 h: Increase difficulty (remove more numbers).
@@ -73,9 +74,9 @@ Output: Files will be saved as sudoku_puzzle_medium_33_1.png, _2.png, etc.
 2. Solving a Puzzle
 Run the solver to recognize and solve an existing image.
 
-Bash
-
+```Bash
 python sudoku_solver.py
+```
 A file selection window will pop up. Select any Sudoku image.
 
 Alternatively, you can drag and drop the image file path into the terminal.
@@ -87,14 +88,14 @@ The system recognizes the digits.
 Solves the puzzle mathematically.
 
 Generates a solution image (e.g., sudoku_puzzle_..._solved.png) with answers in red.
-```
+
 ## 🧪 Running Tests
 This project uses unittest to ensure reliability. You can run the tests locally:
 
 Bash
 
 python test_project.py
-Expected Output: Ran 7 tests in 0.xxx s ... OK
+Expected Output: Ran seven tests in 0.xxx s ... OK
 
 ## 🛠️ Technologies Used
 Python 3.9+
@@ -108,3 +109,21 @@ NumPy: Matrix operations.
 Tkinter: GUI file selection.
 
 GitHub Actions: Continuous Integration (CI).
+
+## 👥 Team Contributions
+### Tsunghan Lin
+- Implemented the **Sudoku solver**
+- Designedthe **unit tests** for reliability
+- Contributed to debugging tasks
+
+### Ziyu Peng
+- Developed the **Sudoku puzzle generator**
+- Implemented the **OCR-based recognition system** using OpenCV
+- Assisted with code integration and dataset preparation
+
+---
+
+### ⚠️ Note on Git Commit History
+Most development work was performed locally because we did not initially realize that the assignment required **frequent GitHub commits documenting each stage of progress**.  
+As a result, a significant portion of the code changes happened on our own machines before being uploaded near the end.  
+We sincerely apologize that the commit history does not fully reflect the entire development process.
