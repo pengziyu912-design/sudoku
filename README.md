@@ -4,8 +4,6 @@
 
 A comprehensive Python-based Sudoku system capable of **generating** unique puzzles, **recognizing** Sudoku grids from images using Computer Vision (OpenCV), and **solving** them automatically with visual overlays.
 
-This project was developed as part of a Software Engineering coursework, demonstrating modular design, unit testing, and continuous integration (CI).
-
 ## ✨ Features
 
 * **Sudoku Generator**:
@@ -35,24 +33,23 @@ This project was developed as part of a Software Engineering coursework, demonst
 │   └── requirements.txt       # Python dependencies
 ├── .gitignore           # System file to ignore temporary files
 └── README.md            # Project documentation
-```markdown
 ## 🚀 Installation
-Clone the repository:
 
-Bash
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/pengziyu912-design/sudoku.git
+    cd sudoku
+    ```
 
-git clone https://github.com/pengziyu912-design/sudoku.git
-cd sudoku
-Navigate to the source folder:
+2.  **Navigate to the source folder**:
+    ```bash
+    cd sudoku
+    ```
 
-Bash
-
-cd sudoku
-Install dependencies:
-
-Bash
-
-pip install -r requirements.txt
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## 📖 Usage
 
@@ -78,7 +75,7 @@ Run the solver to recognize and solve an existing image.
 Bash
 
 python sudoku_solver.py
-A file selection window will pop up. Select any Sudoku image (e.g., one generated in step 1).
+A file selection window will pop up. Select any Sudoku image.
 
 Alternatively, you can drag and drop the image file path into the terminal.
 
@@ -91,14 +88,12 @@ Solves the puzzle mathematically.
 Generates a solution image (e.g., sudoku_puzzle_..._solved.png) with answers in red.
 
 🧪 Running Tests
-This project uses unittest to ensure reliability. You can run the tests locally to verify everything is working:
+This project uses unittest to ensure reliability. You can run the tests locally:
 
 Bash
 
 python test_project.py
 Expected Output: Ran 7 tests in 0.xxx s ... OK
-
-(Note: These tests are also run automatically on GitHub via GitHub Actions whenever code is pushed.)
 
 🛠️ Technologies Used
 Python 3.9+
