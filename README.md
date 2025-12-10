@@ -35,12 +35,13 @@ This project was developed as part of a Software Engineering coursework, demonst
 │   └── requirements.txt       # Python dependencies
 ├── .gitignore           # System file to ignore temporary files
 └── README.md            # Project documentation
-🚀 Installation
+
+## 🚀 Installation
 Clone the repository:
 
 Bash
 
-git clone [https://github.com/pengziyu912-design/sudoku.git](https://github.com/pengziyu912-design/sudoku.git)
+git clone https://github.com/pengziyu912-design/sudoku.git
 cd sudoku
 Navigate to the source folder:
 
