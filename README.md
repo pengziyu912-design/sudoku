@@ -22,7 +22,6 @@ A comprehensive Python-based Sudoku system capable of **generating** unique puzz
 ## 📂 Project Structure
 
 ```text
-/
 ├── .github/workflows/   # CI/CD configuration for GitHub Actions
 ├── sudoku/              # Main Source Code Directory
 │   ├── templates/       # Digit templates for OCR (1.png - 9.png)
