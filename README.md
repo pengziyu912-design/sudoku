@@ -88,7 +88,7 @@ Solves the puzzle mathematically.
 
 Generates a solution image (e.g., sudoku_puzzle_..._solved.png) with answers in red.
 
-🧪 Running Tests
+## 🧪 Running Tests
 This project uses unittest to ensure reliability. You can run the tests locally:
 
 Bash
@@ -96,7 +96,7 @@ Bash
 python test_project.py
 Expected Output: Ran 7 tests in 0.xxx s ... OK
 
-🛠️ Technologies Used
+## 🛠️ Technologies Used
 Python 3.9+
 
 OpenCV (cv2): Image processing and digit recognition.
