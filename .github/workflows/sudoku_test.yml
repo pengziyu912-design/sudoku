@@ -1,0 +1,37 @@
+name: Sudoku Project Test
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # [IMPORTANT] Set default working directory to 'sudoku' folder
+    defaults:
+      run:
+        working-directory: ./sudoku
+
+    steps:
+    # 1. Check out repository code
+    - uses: actions/checkout@v3
+
+    # 2. Set up Python 3.9
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+
+    # 3. Install dependencies
+    # It will automatically look for 'requirements.txt' inside the './sudoku' folder
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # Install headless OpenCV for cloud environments
+        pip install opencv-python-headless numpy Pillow
+
+    # 4. Run Unit Tests
+    # It will run 'test_project.py' inside the './sudoku' folder
+    - name: Run Unit Tests
+      run: |
+        python test_project.py
