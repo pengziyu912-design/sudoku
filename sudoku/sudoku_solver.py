@@ -4,6 +4,15 @@ from typing import List, Optional
 from sudoku_recognition import recognize_sudoku  # your existing file
 import cv2
 import os
+import sys
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+try:
+    import tkinter as tk
+    from tkinter import filedialog
+    GUI_AVAILABLE = True
+except ImportError:
+    GUI_AVAILABLE = False
 
 Grid = List[List[int]]  # 9x9 grid, 0 means empty
 
@@ -86,53 +95,78 @@ def print_pretty(grid: Grid, title: str = "Grid"):
 
 
 # ---------- Draw solved grid on image ----------
-
-def draw_solution_on_image(image_path: str, solved_grid: Grid,
+def draw_solution_on_image(image_path: str, solved_grid: Grid, original_grid: Grid,
                            output_path: str = "sudoku_solved.png"):
     """
-    Draw the solved grid on top of the original image and save it.
-    All cells are drawn (including given numbers).
+    Draw the solved grid using PIL (Pillow) for better font rendering and centering.
     """
-    img = cv2.imread(image_path)
-    if img is None:
-        print("Cannot load image for drawing.")
+    # 1. Load image using OpenCV (to handle Chinese paths correctly)
+    try:
+        img_array = np.fromfile(image_path, dtype=np.uint8)
+        img_cv2 = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    except Exception as e:
+        print(f"[ERROR] Could not read image: {e}")
         return
 
-    h, w, _ = img.shape
+    if img_cv2 is None:
+        print("[ERROR] Cannot load image for drawing.")
+        return
 
-    cell_h = h // 9
-    cell_w = w // 9
+    # 2. Convert OpenCV image (BGR) to PIL image (RGB)
+    img_rgb = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB)
+    pil_img = Image.fromarray(img_rgb)
+    draw = ImageDraw.Draw(pil_img)
 
+    # 3. Calculate grid dimensions
+    width, height = pil_img.size
+    cell_w = width / 9
+    cell_h = height / 9
+
+    # 4. Load Font (Arial) - Dynamic size based on cell height
+    font_size = int(cell_h * 0.6)  # Font is 60% of cell height
+    try:
+        font = ImageFont.truetype("arial.ttf", font_size)
+    except OSError:
+        font = ImageFont.load_default()
+
+    # 5. Draw Red Numbers
     for r in range(9):
         for c in range(9):
-            val = solved_grid[r][c]
-            text = str(val)
+            # Only draw if the cell was originally empty
+            if original_grid[r][c] != 0:
+                continue
 
-            # roughly center text inside the cell
-            x = c * cell_w + cell_w // 4
-            y = r * cell_h + int(cell_h * 0.7)
+            text = str(solved_grid[r][c])
 
-            cv2.putText(
-                img,
-                text,
-                (x, y),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.9,
-                (0, 0, 255),   # red digits
-                2,
-                cv2.LINE_AA,
-            )
+            # Calculate precise center using text bounding box
+            left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
+            text_w = right - left
+            text_h = bottom - top
 
-    cv2.imwrite(output_path, img)
-    print(f"[INFO] Solved image saved as: {output_path}")
+            # Center position
+            x = (c * cell_w) + (cell_w - text_w) / 2 - left
+            y = (r * cell_h) + (cell_h - text_h) / 2 - top
 
+            # Draw text in RED (R=255, G=0, B=0)
+            draw.text((x, y), text, fill=(255, 0, 0), font=font)
+
+    # 6. Save the result
+    try:
+        # Convert back to BGR for OpenCV saving OR just save with PIL (easier)
+        pil_img.save(output_path) 
+        print(f"[INFO] Solved image saved as: {output_path}")
+    except Exception as e:
+        print(f"[ERROR] Failed to save image: {e}")
 
 # ---------- Full pipeline: recognize + solve + export image ----------
-
 def solve_and_export_image(image_path: str):
     """
-    image -> recognize_sudoku -> solve_sudoku -> print -> draw_solution_on_image
+    Pipeline: Image -> Recognize -> Solve -> Print -> Draw Solution
+    Saves output as: {original_name}_solved.{extension}
     """
+    print(f"\n[INFO] Processing file: {image_path}")
+    
+    # 1. Recognize the Sudoku from the image
     grid = recognize_sudoku(
         image_path,
         template_dir="templates",
@@ -141,31 +175,70 @@ def solve_and_export_image(image_path: str):
     )
 
     if grid is None:
-        print("Recognition failed.")
+        print("[ERROR] Recognition failed.")
         return
 
     print_grid(grid, "Recognized Sudoku Grid")
-    print_pretty(grid, "Recognized Sudoku (pretty)")
+    
+    # Make a copy of the original grid BEFORE solving
+    original_grid = [row[:] for row in grid]
 
+    # 2. Solve the Sudoku
     if solve_sudoku(grid):
         print_grid(grid, "Solved Sudoku Grid")
-        print_pretty(grid, "Solved Sudoku (pretty)")
-        draw_solution_on_image(image_path, grid)
+        print_pretty(grid, "Solved Sudoku (Pretty)")
+        
+        # 3. Export the result image with suffix "_solved"
+        # ---------------------------------------------------
+        # [NEW] Split path into root and extension
+        # e.g., "puzzles/my_sudoku.png" -> ("puzzles/my_sudoku", ".png")
+        # ---------------------------------------------------
+        root, ext = os.path.splitext(image_path)
+        
+        # Construct new path: "puzzles/my_sudoku_solved.png"
+        output_path = f"{root}_solved{ext}"
+        
+        draw_solution_on_image(image_path, grid, original_grid, output_path=output_path)
+        
     else:
-        print("No valid solution found.")
-
+        print("[INFO] No valid solution found for this puzzle.")
 
 # ---------- Entry ----------
 
 if __name__ == "__main__":
-    img_name = input("Enter Sudoku image filename: ").strip()
+    img_name = ""
 
+    # Method 1: Try GUI File Selection
+    if GUI_AVAILABLE:
+        try:
+            print("Launching file selector window...")
+            root = tk.Tk()
+            root.withdraw()
+            
+            img_name = filedialog.askopenfilename(
+                title="Select Sudoku Image to Solve",
+                filetypes=[("Image files", "*.png;*.jpg;*.jpeg")]
+            )
+            root.destroy()
+        except Exception as e:
+            print(f"[WARN] GUI selector failed, switching to manual input.")
+            GUI_AVAILABLE = False
+
+    # Method 2: Manual Input / Drag & Drop
     if not img_name:
-        print("No filename given.")
-        raise SystemExit(1)
+        if GUI_AVAILABLE:
+            print("No file selected via window.")
+        
+        prompt = "Please enter (or drag) the image filename: "
+        img_name = input(prompt).strip()
+        
+        # Remove quotes if user dragged a file
+        img_name = img_name.strip('"').strip("'")
 
-    if not os.path.exists(img_name):
-        print(f"File not found: {img_name}")
-        raise SystemExit(1)
-
+    # Validate file existence
+    if not img_name or not os.path.exists(img_name):
+        print(f"[ERROR] File not found: {img_name}")
+        sys.exit(1)
+        
+    # Run the solver pipeline
     solve_and_export_image(img_name)
