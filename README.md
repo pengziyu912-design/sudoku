@@ -33,6 +33,7 @@ A comprehensive Python-based Sudoku system capable of **generating** unique puzz
 │   └── requirements.txt       # Python dependencies
 ├── .gitignore           # System file to ignore temporary files
 └── README.md            # Project documentation
+
 ## 🚀 Installation
 
 1.  **Clone the repository**:
