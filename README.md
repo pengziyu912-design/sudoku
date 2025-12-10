@@ -35,7 +35,7 @@ This project was developed as part of a Software Engineering coursework, demonst
 │   └── requirements.txt       # Python dependencies
 ├── .gitignore           # System file to ignore temporary files
 └── README.md            # Project documentation
-
+```markdown
 ## 🚀 Installation
 Clone the repository:
 
@@ -54,7 +54,6 @@ Bash
 
 pip install -r requirements.txt
 
-```markdown
 ## 📖 Usage
 
 ### 1. Generating a Puzzle
